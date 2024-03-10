@@ -1,0 +1,168 @@
+<!-- version 8
+computer and mobile:
+supports weighted graphs
+moves around vertices, adds edges, moves edges assocaited with the moving vertex
+selects and deletes one edge at a time
+extracts the space separated and C-style representation of the graph
+loads the graph from the said representations
+prims
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs and Trees</title>
+    <style>
+        body,
+        html,
+        #container {
+            width: 100%;
+            height: 100%;
+            margin: 0
+        }
+
+        #container{
+            display: grid;
+            grid-template-rows: 50px 50px;
+            justify-content: end;
+        }
+
+        .vertex {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgb(186, 189, 85);
+            border-width: 5px;
+            border-color: rgba(31, 33, 32, 0.799);
+            border-style: groove;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: grab
+        }
+
+        .vertex.active {
+            background-color: cyan;
+        }
+
+        .label {
+            pointer-events: none;
+            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+        }
+
+        .edge {
+            position: absolute;
+            background-color: black;
+        }
+
+        .edge.fixed {
+            background-color: orange;
+            font-size: 25px;
+            color: black;
+            text-orientation: upright;
+            text-align: center;
+        }
+
+        .edge.active {
+            background-color: burlywood;
+        }
+
+        .button {
+            position: relative;
+            display: flex;
+            right: auto;
+            top: 10px;
+            width: auto;
+            height: 40px;
+            padding-right: 10px;
+            text-align: center;
+            justify-self: right;
+        }
+
+        .display{
+            white-space: pre;
+            margin-left: 15px
+        }
+
+        #extract{
+            grid-row: 1;
+        }
+
+        #load{
+            grid-row: 2;
+        }
+
+        #prim{
+            grid-row: 3;
+        }
+
+        #repr, #input{
+            position: absolute;
+            left: 0;
+            top:10px;
+            display: grid;
+            font-size: 24px;
+            width: 100%;
+            height: 100%;
+        }
+
+        #matrix{
+            width: 300px;
+            height: 300px;
+            padding-left: 15px;
+            border: solid black 3px;
+            border-radius: 7px;
+        }
+
+        .weight{
+            position: absolute;
+            width: 50px;
+            height: 20px;
+            border: solid black 2px;
+            border-radius: 2px;
+        }
+
+        .wt{
+            top: -10px;
+            position: relative;
+        }
+    
+    </style>
+    <script src="drag.js" defer></script>
+    <script src="representation.js" defer></script>
+    <script src="highlight.js" defer></script>
+</head>
+<body>
+    <div id="container">
+        <button name="extract" id="extract" class="button" onclick="show('repr')">
+            Extract representation
+        </button>
+        <button name="load" id="load" class="button" onclick="show('input')">
+            Load representation
+        </button>
+        <button name="prim" id="prim" class="button" onclick="prim(window.prompt('Enter root'))">
+            Start Prim's
+        </button>
+        <div id="edges"></div>
+        <input type="number" class="weight" value="5" style="visibility: hidden;">
+    </div>
+    <div id="repr" style="visibility: hidden;">
+        <button name="close" class="close button" onclick="hide('repr')">X</button>
+        <div id="space" class="display"></div>
+        <div id="C" class="display"></div>
+    </div>
+    <div id="input" style="visibility: hidden;">
+        <button name="close" class="close button" onclick="hide('input')">Load</button>
+        <div id="matrix" class="display" contenteditable="true"></div>
+        <form name="inputForm">
+            <input type="radio" name="inputStyle" value="C"> C
+            <input type="radio" name="inputStyle" value="space" checked> Space-separated
+        </form>
+    </div>
+</body>
+</html>
