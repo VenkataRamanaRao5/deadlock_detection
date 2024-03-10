@@ -21,12 +21,13 @@ prims
         #container {
             width: 100%;
             height: 100%;
-            margin: 0
+            margin: 0;
+            background-color: rgb(19, 1, 21);
         }
 
         #container{
             display: grid;
-            grid-template-rows: 50px 50px;
+            grid-template-rows: 50px 50px 50px 50px;
             justify-content: end;
         }
 
@@ -36,7 +37,7 @@ prims
             height: 30px;
             background-color: rgb(186, 189, 85);
             border-width: 5px;
-            border-color: rgba(31, 33, 32, 0.799);
+            border-color: rgba(41, 127, 84, 0.799);
             border-style: groove;
             border-radius: 30px;
             display: flex;
@@ -50,6 +51,19 @@ prims
             background-color: cyan;
         }
 
+        .vertex.green, .edge.fixed.green{
+            background-color: green;
+        }
+        .vertex.brown, .edge.fixed.brown{
+            background-color: brown;
+        }
+        .vertex.blue, .edge.fixed.blue{
+            background-color: blue;
+        }
+        .vertex.purple, .edge.fixed.purple{
+            background-color: purple;
+        }
+
         .label {
             pointer-events: none;
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -57,13 +71,13 @@ prims
 
         .edge {
             position: absolute;
-            background-color: black;
+            background-color: rgb(125, 96, 96);
         }
 
         .edge.fixed {
             background-color: orange;
             font-size: 25px;
-            color: black;
+            color: rgb(226, 224, 224);
             text-orientation: upright;
             text-align: center;
         }
@@ -86,7 +100,8 @@ prims
 
         .display{
             white-space: pre;
-            margin-left: 15px
+            margin-left: 15px;
+            color: aliceblue;
         }
 
         #extract{
@@ -99,6 +114,10 @@ prims
 
         #prim{
             grid-row: 3;
+        }
+
+        #clear{
+            grid-row: 4;
         }
 
         #repr, #input{
@@ -147,6 +166,9 @@ prims
         </button>
         <button name="prim" id="prim" class="button" onclick="prim(window.prompt('Enter root'))">
             Start Prim's
+        </button>
+        <button name="clear" id="clear" class="button" onclick="clearAll()">
+            Clear coloring
         </button>
         <div id="edges"></div>
         <input type="number" class="weight" value="5" style="visibility: hidden;">
