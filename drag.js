@@ -236,6 +236,18 @@ function createWaitingEdge() {
 
     let wtBox = document.createElement("span")
     wtBox.classList.add('wt')
+    wtBox.addEventListener('click', (e) => {
+        container.click()
+        e.preventDefault()
+        e.stopImmediatePropagation()
+
+        let se = wtBox.parentElement.id.split('-')
+        console.log(se)
+        se[0] = document.getElementById(se[0])
+        se[1] = document.getElementById(se[1])
+        askWeight({x: parseFloat(se[0].style.left), y: parseFloat(se[0].style.top), id: se[0].id},
+            {x: parseFloat(se[1].style.left), y: parseFloat(se[1].style.top), id: se[1].id})
+    })
     edge.appendChild(wtBox)
 
     edge.addEventListener("click", (e) => {
@@ -244,7 +256,7 @@ function createWaitingEdge() {
 
         if (edge.classList.contains("active")) {
             edge.classList.remove("active")
-            //deleteEdge()
+            deleteEdge()
             activeEdge = null
         }
         else {

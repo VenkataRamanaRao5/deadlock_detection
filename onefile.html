@@ -21,12 +21,13 @@ prims
         #container {
             width: 100%;
             height: 100%;
-            margin: 0
+            margin: 0;
+            background-color: rgb(19, 1, 21);
         }
 
         #container {
             display: grid;
-            grid-template-rows: 50px 50px;
+            grid-template-rows: 50px 50px 50px 50px;
             justify-content: end;
         }
 
@@ -36,7 +37,7 @@ prims
             height: 30px;
             background-color: rgb(186, 189, 85);
             border-width: 5px;
-            border-color: rgba(31, 33, 32, 0.799);
+            border-color: rgba(41, 127, 84, 0.799);
             border-style: groove;
             border-radius: 30px;
             display: flex;
@@ -50,6 +51,26 @@ prims
             background-color: cyan;
         }
 
+        .vertex.green,
+        .edge.fixed.green {
+            background-color: green;
+        }
+
+        .vertex.brown,
+        .edge.fixed.brown {
+            background-color: brown;
+        }
+
+        .vertex.blue,
+        .edge.fixed.blue {
+            background-color: blue;
+        }
+
+        .vertex.purple,
+        .edge.fixed.purple {
+            background-color: purple;
+        }
+
         .label {
             pointer-events: none;
             font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
@@ -57,13 +78,13 @@ prims
 
         .edge {
             position: absolute;
-            background-color: black;
+            background-color: rgb(125, 96, 96);
         }
 
         .edge.fixed {
             background-color: orange;
             font-size: 25px;
-            color: black;
+            color: rgb(226, 224, 224);
             text-orientation: upright;
             text-align: center;
         }
@@ -86,7 +107,8 @@ prims
 
         .display {
             white-space: pre;
-            margin-left: 15px
+            margin-left: 15px;
+            color: aliceblue;
         }
 
         #extract {
@@ -99,6 +121,10 @@ prims
 
         #prim {
             grid-row: 3;
+        }
+
+        #clear {
+            grid-row: 4;
         }
 
         #repr,
@@ -146,6 +172,9 @@ prims
         <button name="prim" id="prim" class="button" onclick="prim(window.prompt('Enter root'))">
             Start Prim's
         </button>
+        <button name="clear" id="clear" class="button" onclick="clearAll()">
+            Clear coloring
+        </button>
         <div id="edges"></div>
         <input type="number" class="weight" value="5" style="visibility: hidden;">
     </div>
@@ -162,7 +191,7 @@ prims
             <input type="radio" name="inputStyle" value="space" checked> Space-separated
         </form>
     </div>
-    <script defer>
+    <script src="drag.js" defer>
         const container = document.getElementById("container")
         const edges = document.getElementById("edges")
         const weightBox = document.getElementsByClassName("weight")[0]
@@ -401,6 +430,18 @@ prims
 
             let wtBox = document.createElement("span")
             wtBox.classList.add('wt')
+            wtBox.addEventListener('click', (e) => {
+                container.click()
+                e.preventDefault()
+                e.stopImmediatePropagation()
+
+                let se = wtBox.parentElement.id.split('-')
+                console.log(se)
+                se[0] = document.getElementById(se[0])
+                se[1] = document.getElementById(se[1])
+                askWeight({ x: parseFloat(se[0].style.left), y: parseFloat(se[0].style.top), id: se[0].id },
+                    { x: parseFloat(se[1].style.left), y: parseFloat(se[1].style.top), id: se[1].id })
+            })
             edge.appendChild(wtBox)
 
             edge.addEventListener("click", (e) => {
@@ -409,7 +450,7 @@ prims
 
                 if (edge.classList.contains("active")) {
                     edge.classList.remove("active")
-                    //deleteEdge()
+                    deleteEdge()
                     activeEdge = null
                 }
                 else {
@@ -519,7 +560,8 @@ prims
             console.log("lefting")
         }
     </script>
-    <script defer>
+    <script src="representation.js" defer>
+
         function extract() {
             const C = document.getElementById("C"),
                 space = document.getElementById("space")
@@ -585,44 +627,49 @@ prims
             container.style.visibility = "hidden"
         }
     </script>
-    <script defer>
-        function colorVertex(vertex, color) {
-            document.getElementById(vertex).style.backgroundColor = color
-        }
-
-        function colorEdge(start, end, color) {
-            (document.getElementById(start + '-' + end) ||
-                document.getElementById(end + '-' + start)).style.backgroundColor = color
-        }
-
+    <script src="highlight.js" defer>
         function uncolorVertex(vertex) {
-            document.getElementById(vertex).style.backgroundColor = 'rgb(186, 189, 85)'
+            document.getElementById(vertex).classList = 'vertex'
         }
 
         function uncolorEdge(start, end) {
             (document.getElementById(start + '-' + end) ||
-                document.getElementById(end + '-' + start)).style.backgroundColor = 'orange'
+                document.getElementById(end + '-' + start)).classList = 'edge fixed'
+        }
+
+        function colorVertex(vertex, color) {
+            uncolorVertex(vertex)
+            document.getElementById(vertex).classList.add(color)
+        }
+
+        function colorEdge(start, end, color) {
+            uncolorEdge(start, end)
+            let e = document.getElementById(start + '-' + end) ||
+                document.getElementById(end + '-' + start)
+            e.classList.add(color)
         }
 
         function removeVertexGroup(color) {
             for (let i of document.getElementsByClassName('vertex'))
-                if (i.style.backgroundColor == color)
-                    i.style.backgroundColor = 'rgb(186, 189, 85)'
+                if (i.classList.contains(color))
+                    i.classList.remove(color)
         }
 
         function removeEdgeGroup(color) {
             for (let i of document.getElementsByClassName('edge'))
-                if (i.style.backgroundColor == color)
-                    i.style.backgroundColor = 'orange'
+                if (i.classList.contains(color))
+                    i.classList.remove(color)
+        }
+
+        function clearAll() {
+            for (let i of document.getElementsByClassName('vertex'))
+                i.classList = 'vertex'
+            for (let i of document.getElementsByClassName('edge'))
+                i.classList = 'edge fixed'
         }
 
         async function prim(root) {
-            removeEdgeGroup('brown')
-            removeEdgeGroup('blue')
-            removeEdgeGroup('purple')
-            removeVertexGroup('brown')
-            removeVertexGroup('green')
-            removeVertexGroup('blue')
+            clearAll()
             let mst = Array(v).fill().map(() => ({ distance: 0, vertex: -1 })),
                 nearness = Array(v).fill().map(() => ({ distance: Infinity, vertex: -1 }))
             while (true) {
@@ -694,6 +741,14 @@ prims
             return mst;
 
         }
+
+        /*
+        0 5 7 4 5 
+        5 0 7 4 8 
+        7 7 0 4 5 
+        4 4 4 0 5 
+        5 8 5 5 0
+        */
     </script>
 </body>
 
