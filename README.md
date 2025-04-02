@@ -9,10 +9,10 @@ This is a graph editor web application that lets you
 
 ### Mobile 
 
-. touch-leave-drag for drawing edges
-. long press-drag for moving around vertices
+- touch-leave-drag for drawing edges
+- long press-drag for moving around vertices
 
 ### PC
 
-. right click-drag for drawing edges
-. left click-drag for moving around vertices
+- right click-drag for drawing edges
+- left click-drag for moving around vertices
