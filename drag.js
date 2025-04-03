@@ -1,30 +1,25 @@
 const container = document.getElementById("container")
 const edges = document.getElementById("edges")
-const weightBox = document.getElementsByClassName("weight")[0]
 
 let v = parseInt(window.prompt("No. of vertices")),
-    isWeighted = window.confirm("Is the graph weighted"),
-    isDirected = false
+    isDirected = true
 
 const w = container.clientWidth, h = container.clientHeight
-const r = (Math.min(w, h) > 510) ? 250 : Math.min(h, w)*0.45
-const vWidth = 30, vHeight = 30
+const r = (Math.min(w, h) > 510) ? 250 : Math.min(h, w)*0.40
+const vWidth = 35, vHeight = 35
+container.style.setProperty('--vertex-size', `${vWidth}px`)
+container.style.setProperty('--font-size', `24px`)
+
 const longPress = 300
+const arrowWidth = 20
 
 let movingVertex = null, startingVertex = null,
     activeEdge = null, activeVertex = null, timer = null
-    
-let isWeightBoxVisibile = false, isEdgeInfoBoxVisible = false
 
 let adjacency = [],
     mat = Array(v).fill().map(
     () => Array(v).fill(0)
 )
-
-weightBox.addEventListener('click', (e) => {
-    e.preventDefault()
-    e.stopImmediatePropagation()
-})
 
 for (let j = 0; j < v; j++) {
     // creating v vertices as a regular polygon
@@ -48,12 +43,9 @@ for (let j = 0; j < v; j++) {
         e.preventDefault()
         e.stopImmediatePropagation()
 
-        if(isWeightBoxVisibile)
-            container.click()
-
         //console.log(e)
 
-        // no shift key => move around
+        // no shift key and left click => move around
         if (e.buttons == 1 && !e.shiftKey) {
             console.log("left")
             e.target.style.cursor = 'grabbing'
@@ -77,9 +69,6 @@ for (let j = 0; j < v; j++) {
 
     vertex.addEventListener('touchstart', (e) => {
         e.preventDefault()
-
-        if(isWeightBoxVisibile)
-            container.click()
 
         if (!e.target.classList.contains("vertex")) return
         e.target.classList.add("active")
@@ -131,7 +120,7 @@ for (let j = 0; j < v; j++) {
     // creating span for the vertex label
     let label = document.createElement("span")
     label.classList.add("label")
-    label.innerHTML = `${j}`
+    label.innerHTML = `P${j}`
     vertex.appendChild(label)
 
     container.appendChild(vertex)
@@ -162,14 +151,6 @@ window.addEventListener('keydown', ({ key }) => {
 })
 
 window.addEventListener('click', (e) => {
-    if(isWeightBoxVisibile){
-        weightBox.style.visibility = "hidden"
-        isWeightBoxVisibile = false
-        let endpoints = weightBox.id.split('~')
-        let wt = weightBox.value
-        updateAdjacency(endpoints[0], endpoints[1], wt)
-    }
-
     if(activeEdge){
         activeEdge.classList.remove("active")
         activeEdge = null
@@ -198,7 +179,14 @@ function deleteEdge() {
 function move(x, y) {
     const vertex = document.getElementById(movingVertex)
     adjacency[movingVertex].forEach((neighbour) => {
-        drawDiv(document.getElementById(neighbour.edge), x, y, neighbour.x, neighbour.y)
+        drawDiv(document.getElementById(neighbour.edge), x, y, neighbour.otherX, neighbour.otherY)
+    })
+    adjacency.forEach((value, index) => {
+        value.forEach((v2, i2) => {
+            if (v2.v == movingVertex) {
+                drawDiv(document.getElementById(v2.edge), v2.thisX, v2.thisY, x, y)
+            }
+        })
     })
     vertex.style.left = `${x - vWidth / 2}px`
     vertex.style.top = `${y - vHeight / 2}px`
@@ -207,13 +195,12 @@ function move(x, y) {
 // draw line from point1 to point2
 function drawDiv(div, x1, y1, x2, y2) {
     let dist = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2),
-        angle = Math.atan2(y1 - y2, x1 - x2) * 180 / Math.PI,
+        angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI,
         midx = (x1 + x2) / 2,
         midy = (y1 + y2) / 2
     div.style.left = `${midx - dist / 2 + 4}px`
     div.style.width = `${dist}px`
     div.style.top = `${midy}px`
-    div.style.height = `8px`
     div.style.transform = `rotate(${angle}deg)`
 }
 
@@ -234,21 +221,17 @@ function createWaitingEdge() {
     edge.classList.add('edge')
     edge.id = "waitingEdge"
 
-    let wtBox = document.createElement("span")
-    wtBox.classList.add('wt')
-    wtBox.addEventListener('click', (e) => {
-        container.click()
-        e.preventDefault()
-        e.stopImmediatePropagation()
+    let leftArrow = document.createElement("div")
+    leftArrow.classList.add('arrow')
+    leftArrow.classList.add('edge')
+    leftArrow.classList.add('left')
+    edge.appendChild(leftArrow)
 
-        let se = wtBox.parentElement.id.split('-')
-        console.log(se)
-        se[0] = document.getElementById(se[0])
-        se[1] = document.getElementById(se[1])
-        askWeight({x: parseFloat(se[0].style.left), y: parseFloat(se[0].style.top), id: se[0].id},
-            {x: parseFloat(se[1].style.left), y: parseFloat(se[1].style.top), id: se[1].id})
-    })
-    edge.appendChild(wtBox)
+    let rightArrow = document.createElement("div")
+    rightArrow.classList.add('arrow')
+    rightArrow.classList.add('edge')
+    rightArrow.classList.add('right')
+    edge.appendChild(rightArrow)
 
     edge.addEventListener("click", (e) => {
         e.preventDefault()
@@ -294,24 +277,25 @@ function finishEdge(el) {
         edge.classList.add("fixed")
         drawDiv(edge, x1, y1, x2, y2)
 
-        if(isWeighted)
-            askWeight({x: x1, y: y1, id: startingVertex}, {x: x2, y: y2, id: el.id})
-        else
-            updateAdjacency(startingVertex, el.id, 1)
+        updateAdjacency(startingVertex, el.id, 1)
 
         adjacency[startingVertex].push({
             v: el.id,
             edge: name1,
-            x: x2,
-            y: y2,
+            thisX: x1,
+            thisY: y1,
+            otherX: x2,
+            otherY: y2,
         })
 
         if(!isDirected){
             adjacency[el.id].push({
                 v: startingVertex,
                 edge: name1,
-                x: x1,
-                y: y1,
+                thisX: x2,
+                thisY: y2,
+                otherX: x1,
+                otherY: y1,
             })
         }
 
@@ -321,9 +305,6 @@ function finishEdge(el) {
 }
 
 function updateAdjacency(start, end, wt){
-    
-    let f = document.getElementById(start+'-'+end)
-    if(f)   f.firstElementChild.innerHTML = wt
 
     mat[start][end] = wt
 
@@ -332,26 +313,20 @@ function updateAdjacency(start, end, wt){
     }
 }
 
-function askWeight(start, end){
-    console.log(start, end)
-
-    weightBox.style.left = `${(start.x + end.x) / 2}px` 
-    weightBox.style.top = `${(start.y + end.y) / 2}px`
-    weightBox.id = `${start.id}~${end.id}`
-    weightBox.style.visibility = "visible"
-    isWeightBoxVisibile = true
-}
-
 // ending all changes when mouse goes up
 function endChanges(x, y) {
     if (movingVertex == null && startingVertex == null)
         return
     if (movingVertex) {
+        adjacency[movingVertex].forEach((neighbour) => {
+            neighbour.thisX = x
+            neighbour.thisY = y
+        })
         adjacency.forEach((value, index) => {
             value.forEach((v2, i2) => {
                 if (v2.v == movingVertex) {
-                    adjacency[index][i2].x = x
-                    adjacency[index][i2].y = y
+                    adjacency[index][i2].otherX = x
+                    adjacency[index][i2].otherY = y
                 }
             })
         })

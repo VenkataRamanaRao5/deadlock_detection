@@ -37,9 +37,6 @@ function load(){
                 createWaitingEdge()
                 finishEdge(document.getElementById(j))
                 endChanges(0, 0)
-                if(isWeighted)
-                    updateAdjacency(i, j, mat[i][j])
-                isWeightBoxVisibile = false
                 weightBox.style.visibility = "hidden"
             }
             else{
@@ -57,8 +54,9 @@ function hide(div){
 }
 
 function show(div){
+    extract()
     if(div == 'repr')
-        extract()
+        document.getElementById('matrix').innerHTML = document.getElementById("space").innerHTML
     document.getElementById(div).style.visibility = "visible"
     container.style.visibility = "hidden"
 }
