@@ -37,7 +37,6 @@ function load(){
                 createWaitingEdge()
                 finishEdge(document.getElementById(j))
                 endChanges(0, 0)
-                weightBox.style.visibility = "hidden"
             }
             else{
                 activeEdge = document.getElementById(i+'-'+j)

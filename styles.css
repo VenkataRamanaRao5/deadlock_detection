@@ -33,16 +33,16 @@ html,
     background-color: cyan;
 }
 
-.vertex.green, .edge.fixed.green{
+.vertex.green, .edge.fixed.green, .edge.fixed.green > .arrow{
     background-color: green;
 }
-.vertex.brown, .edge.fixed.brown{
+.vertex.brown, .edge.fixed.brown, .edge.fixed.brown > .arrow{
     background-color: brown;
 }
-.vertex.blue, .edge.fixed.blue{
+.vertex.blue, .edge.fixed.blue, .edge.fixed.blue > .arrow{
     background-color: blue;
 }
-.vertex.purple, .edge.fixed.purple{
+.vertex.purple, .edge.fixed.purple, .edge.fixed.purple > .arrow{
     background-color: purple;
 }
 
@@ -51,24 +51,24 @@ html,
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
 
-.edge {
+.edge, .arrow {
     position: absolute;
     background-color: rgb(125, 96, 96);
     height: 5px;
 }
 
-.edge.fixed, .edge.fixed * {
+.edge.fixed, .edge.fixed > .arrow {
     background-color: orange;
 }
 
-.edge.active, .edge.active * {
+.edge.active, .edge.active > .arrow {
     background-color: burlywood;
 }
 
 .arrow {
     position: absolute;
     right: 0;
-    width: 30px;
+    width: 25px;
 }
 
 .fixed > .arrow {
@@ -77,12 +77,12 @@ html,
 
 .left {
     transform: rotate(-30deg);
-    top: 11px;
+    top: 9px;
 }
 
 .right {
     transform: rotate(30deg);
-    top: -11px;
+    top: -9px;
 }
 
 .button {
@@ -132,4 +132,14 @@ html,
     padding-left: 15px;
     border: solid black 3px;
     border-radius: 7px;
+}
+
+.message {
+    top: 25px;
+    transition: left 4s ease;
+    position: absolute;
+    color:antiquewhite;
+    text-wrap: nowrap;
+    z-index: -1;
+    font-size: 24px;
 }

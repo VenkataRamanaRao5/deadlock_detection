@@ -223,13 +223,11 @@ function createWaitingEdge() {
 
     let leftArrow = document.createElement("div")
     leftArrow.classList.add('arrow')
-    leftArrow.classList.add('edge')
     leftArrow.classList.add('left')
     edge.appendChild(leftArrow)
 
     let rightArrow = document.createElement("div")
     rightArrow.classList.add('arrow')
-    rightArrow.classList.add('edge')
     rightArrow.classList.add('right')
     edge.appendChild(rightArrow)
 
