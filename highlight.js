@@ -105,7 +105,7 @@ async function sendMessage(init, sender, receiver){
     msg.style.left = '100%'
     await delay(3500)
     setTimeout(() => colorEdge(sender, receiver, "brown"), 100)
-    setTimeout(() => clearMessages(), 1760)
+    setTimeout(() => clearMessages(), 1725)
     return receiver
 
 }
