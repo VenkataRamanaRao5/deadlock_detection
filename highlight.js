@@ -45,49 +45,48 @@ function delay(ms) {
 
 let finish = false, deadlock = false
 
-let visited = Array.from({length: v}, e => false)
-
-function finishAlgo(){
-    if(!finish) {
-        finish = true
-        if(deadlock) window.alert("deadlock detected")
-        else window.alert("No deadlock detected")
+async function chandyMisraHaas(start) {
+    if(!start) retuurn
+    clearAll()
+    colorVertex(start, "blue")
+    let visited = Array.from({length: v}, e => false)
+    let init = start
+    let p = await broadcastMessage(init, start, visited)
+    if(!p) {
+        colorVertex(init, "red")
+        await delay(250)
+        window.alert("Deadlock detected")
     }
+    else window.alert("No deadlock detected")
 }
 
-async function startMessage(init, start){
-    if(!start){
-        visited.fill(false)
-        start = init
-        finish = false
-        deadlock = false
-    }
-    if(visited[start])  return
+
+async function broadcastMessage(init, start, visited){
+    if(visited[start])  return true
     else visited[start] = true
     await delay(500)
-    colorVertex(start, "green")
+    if(init != start) colorVertex(start, "green")
     await delay(500)
     let p = adjacency[start].map(element => {
         console.log(start, element)
         return sendMessage(init, start, element.v)
     });
     console.log(p)
-    await Promise.all(p).then(async data => {
-        console.log(data)
-        if(data.includes(-1)) 
-            deadlock = true
-        else {
-            await delay(1000)
-            Promise.all(data.map(pid => {
-                return startMessage(init, pid)
-            })).then(data => {
-                console.log(2, data, init, start, visited)
-                if(!visited.includes(false))
-                    finishAlgo()
-            })
-        }
+    let receivers = await Promise.all(p)
+    console.log(receivers)
+    if(receivers.includes(init)) {
+        return false
+    }
+    await delay(750)
+    let p2 = receivers.map(pid => {
+        return broadcastMessage(init, pid, visited)
     })
-    return 0
+
+    console.log(p2)
+    let result = await Promise.all(p2)
+    console.log(result)
+    return !result.includes(false)
+
 }
 
 async function sendMessage(init, sender, receiver){
@@ -104,10 +103,9 @@ async function sendMessage(init, sender, receiver){
     
     await delay(100)
     msg.style.left = '100%'
-    await delay(4000)
-    setTimeout(() => clearMessages(), 2000)
-    setTimeout(() => colorEdge(sender, receiver, "brown"), 1000)
-    if(init == receiver)    return -1
+    await delay(3500)
+    setTimeout(() => colorEdge(sender, receiver, "brown"), 100)
+    setTimeout(() => clearMessages(), 1760)
     return receiver
 
 }

@@ -45,6 +45,9 @@ html,
 .vertex.purple, .edge.fixed.purple, .edge.fixed.purple > .arrow{
     background-color: purple;
 }
+.vertex.red, .edge.fixed.red, .edge.fixed.red > .arrow{
+    background-color: red;
+}
 
 .label {
     pointer-events: none;
@@ -72,17 +75,19 @@ html,
 }
 
 .fixed > .arrow {
-    right: calc(var(--vertex-size) / 2);
+    right: calc(var(--vertex-size) / 2 + 2px);
 }
+
+/* top = +- sqrt(width / 2) */
 
 .left {
     transform: rotate(-30deg);
-    top: 9px;
+    top: 8px;
 }
 
 .right {
     transform: rotate(30deg);
-    top: -9px;
+    top: -8px;
 }
 
 .button {
@@ -136,7 +141,7 @@ html,
 
 .message {
     top: 25px;
-    transition: left 1s ease;
+    transition: left 3.5s linear;
     position: absolute;
     color:antiquewhite;
     text-wrap: nowrap;

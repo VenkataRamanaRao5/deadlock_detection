@@ -16,9 +16,6 @@ prims
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deadlock detection</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="drag.js" defer></script>
-    <script src="representation.js" defer></script>
-    <script src="highlight.js" defer></script>
 </head>
 <body>
     <div id="container">
@@ -31,8 +28,8 @@ prims
         <button name="clear" id="clear" class="button" onclick="clearAll()">
             Clear coloring
         </button>
-        <button name="message" id="message" class="button" onclick="startMessage(window.prompt('Enter start'))">
-            Start message
+        <button name="message" id="message" class="button" onclick="chandyMisraHaas(window.prompt('Enter start'))">
+            Start chandyMisraHaas
         </button>
         <div id="edges"></div>
     </div>
@@ -49,5 +46,8 @@ prims
             <input type="radio" name="inputStyle" value="space" checked> Space-separated
         </form>
     </div>
+    <script src="drag.js" defer></script>
+    <script src="representation.js" defer></script>
+    <script src="highlight.js" defer></script>
 </body>
 </html>
