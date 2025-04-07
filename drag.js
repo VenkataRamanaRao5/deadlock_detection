@@ -1,11 +1,10 @@
 const container = document.getElementById("container")
 const edges = document.getElementById("edges")
 
-let v = parseInt(window.prompt("No. of vertices")),
-    isDirected = true
+let v, isDirected = true
 
 const w = container.clientWidth, h = container.clientHeight
-const r = (Math.min(w, h) > 510) ? 250 : Math.min(h, w)*0.40
+const r = (Math.min(w, h) > 510) ? 250 : Math.min(h, w) * 0.40
 const vWidth = 35, vHeight = 35
 container.style.setProperty('--vertex-size', `${vWidth}px`)
 container.style.setProperty('--font-size', `24px`)
@@ -16,146 +15,165 @@ const arrowWidth = 20
 let movingVertex = null, startingVertex = null,
     activeEdge = null, activeVertex = null, timer = null
 
-let adjacency = [],
-    mat = Array(v).fill().map(
-    () => Array(v).fill(0)
-)
+let adjacency = [], mat
 
-for (let j = 0; j < v; j++) {
-    // creating v vertices as a regular polygon
-    // me sad, native js does not support complex numbers
-    // i couldn't use the polar form :(
+function loadUI(v) {
+    for (let j = 0; j < v; j++) {
+        // creating v vertices as a regular polygon
+        // me sad, native js does not support complex numbers
+        // i couldn't use the polar form :(
 
-    // x coord of jth vertex
-    let x = r * Math.cos(2 * Math.PI * j / v) + w / 2
+        // x coord of jth vertex
+        let x = r * Math.cos(2 * Math.PI * j / v) + w / 2
 
-    // y coord of jth vertex
-    let y = r * Math.sin(2 * Math.PI * j / v) + h / 2
+        // y coord of jth vertex
+        let y = r * Math.sin(2 * Math.PI * j / v) + h / 2
 
-    // creating vertex div, adding class, id and coords
-    let vertex = document.createElement("div")
-    vertex.classList.add("vertex")
-    vertex.id = `${j}`
-    vertex.style.left = `${x}px`
-    vertex.style.top = `${y}px`
+        // creating vertex div, adding class, id and coords
+        let vertex = document.createElement("div")
+        vertex.classList.add("vertex")
+        vertex.id = `${j}`
+        vertex.style.left = `${x}px`
+        vertex.style.top = `${y}px`
 
-    vertex.addEventListener('mousedown', (e) => {
-        e.preventDefault()
-        e.stopImmediatePropagation()
+        vertex.addEventListener('mousedown', (e) => {
+            e.preventDefault()
+            e.stopImmediatePropagation()
 
-        //console.log(e)
+            //console.log(e)
 
-        // no shift key and left click => move around
-        if (e.buttons == 1 && !e.shiftKey) {
-            console.log("left")
-            e.target.style.cursor = 'grabbing'
-            movingVertex = e.target.id
-        }
+            // no shift key and left click => move around
+            if (e.buttons == 1 && !e.shiftKey) {
+                console.log("left")
+                e.target.style.cursor = 'grabbing'
+                movingVertex = e.target.id
+            }
 
-        // shift key => edge
-        else {
-            console.log("right")
-            container.style.cursor = 'crosshair'
-            startingVertex = e.target.id
-        }
-    })
+            // shift key => edge
+            else {
+                console.log("right")
+                container.style.cursor = 'crosshair'
+                startingVertex = e.target.id
+            }
+        })
 
-    vertex.addEventListener('mouseup', (e) => finishEdge(e.target))
+        vertex.addEventListener('mouseup', (e) => finishEdge(e.target))
 
-    vertex.addEventListener('contextmenu', (e) => {
-        e.preventDefault()
-        return false
-    })
+        vertex.addEventListener('contextmenu', (e) => {
+            e.preventDefault()
+            return false
+        })
 
-    vertex.addEventListener('touchstart', (e) => {
-        e.preventDefault()
+        vertex.addEventListener('touchstart', (e) => {
+            e.preventDefault()
 
-        if (!e.target.classList.contains("vertex")) return
-        e.target.classList.add("active")
-        if (startingVertex != e.target.id) {
-            startingVertex = null
-        }
-        console.log("TImer")
-        timer = setTimeout(function () {
-            movingVertex = e.target.id
-            startingVertex = null
-            e.target.classList.remove('active')
-        }, longPress)
-    })
+            if (!e.target.classList.contains("vertex")) return
+            e.target.classList.add("active")
+            if (startingVertex != e.target.id) {
+                startingVertex = null
+            }
+            console.log("TImer")
+            timer = setTimeout(function () {
+                movingVertex = e.target.id
+                startingVertex = null
+                e.target.classList.remove('active')
+            }, longPress)
+        })
 
-    vertex.addEventListener('touchend', (e) => {
-        e.preventDefault()
-        if (timer) {
-            clearTimeout(timer)
-            timer = null
-            console.log("Heer")
-            startingVertex = e.target.id
-            e.target.classList.remove("active")
-        }
-        else {
-            let el = document.elementFromPoint(e.changedTouches[0].pageX, e.changedTouches[0].pageY)
-            //console.log(el)
-            if (el.classList.contains("vertex"))
-                finishEdge(el)
-            endChanges(e.changedTouches[0].pageX, e.changedTouches[0].pageY)
-        }
-    })
+        vertex.addEventListener('touchend', (e) => {
+            e.preventDefault()
+            if (timer) {
+                clearTimeout(timer)
+                timer = null
+                console.log("Heer")
+                startingVertex = e.target.id
+                e.target.classList.remove("active")
+            }
+            else {
+                let el = document.elementFromPoint(e.changedTouches[0].pageX, e.changedTouches[0].pageY)
+                //console.log(el)
+                if (el.classList.contains("vertex"))
+                    finishEdge(el)
+                endChanges(e.changedTouches[0].pageX, e.changedTouches[0].pageY)
+            }
+        })
 
-    vertex.addEventListener('touchmove', (e) => {
-        e.preventDefault()
-        if (e.target.id == movingVertex) {
-            move(e.touches[0].clientX, e.touches[0].clientY)
-            clearTimeout(timer)
-            timer = null
-            e.target.classList.remove("active")
-        }
-        else if (e.target.id == startingVertex) {
-            draw(e.touches[0].clientX, e.touches[0].clientY)
-            clearTimeout(timer)
-            timer = null
-            e.target.classList.remove("active")
-        }
-    })
+        vertex.addEventListener('touchmove', (e) => {
+            e.preventDefault()
+            if (e.target.id == movingVertex) {
+                move(e.touches[0].clientX, e.touches[0].clientY)
+                clearTimeout(timer)
+                timer = null
+                e.target.classList.remove("active")
+            }
+            else if (e.target.id == startingVertex) {
+                draw(e.touches[0].clientX, e.touches[0].clientY)
+                clearTimeout(timer)
+                timer = null
+                e.target.classList.remove("active")
+            }
+        })
 
-    // creating span for the vertex label
-    let label = document.createElement("span")
-    label.classList.add("label")
-    label.innerHTML = `P${j}`
-    vertex.appendChild(label)
+        // creating span for the vertex label
+        let label = document.createElement("span")
+        label.classList.add("label")
+        label.innerHTML = `P${j}`
+        vertex.appendChild(label)
 
-    container.appendChild(vertex)
+        container.appendChild(vertex)
 
-    adjacency.push([])
+        adjacency.push([])
+    }
 }
 
-// mouse can move anywhere in the window
-window.addEventListener('mousemove', (e) => {
-    if (movingVertex == null) {
-        if (startingVertex == null) return
-        else draw(e.x, e.y)
+window.onload = function () {
+    if (sessionStorage.getItem('v') && window.confirm("Do you want to load the previous data?")) {
+        v = parseInt(sessionStorage.getItem('v'))
+        mat = Array(v).fill().map(() => Array(v).fill(0))
+        loadUI(v)
+        document.getElementById('matrix').innerHTML = sessionStorage.getItem('matrix')
+        load()
     }
+
     else {
-        move(e.x, e.y)
+        sessionStorage.removeItem('v')
+        sessionStorage.removeItem('matrix')
+        v = parseInt(window.prompt("Enter number of processes"))
+        mat = Array(v).fill().map(() => Array(v).fill(0))
+        loadUI(v)
     }
-})
 
-// mouse up can be triggered anywhere in the window
-window.addEventListener('mouseup', (e) => endChanges(e.x, e.y))
 
-// delete selected edge
-window.addEventListener('keydown', ({ key }) => {
-    if (key == "Delete")
-        deleteEdge()
-    else if(key == "Enter")
-        container.click()
-})
 
-window.addEventListener('click', (e) => {
-    if(activeEdge){
-        activeEdge.classList.remove("active")
-        activeEdge = null
-    }
-})
+    // mouse can move anywhere in the window
+    window.addEventListener('mousemove', (e) => {
+        if (movingVertex == null) {
+            if (startingVertex == null) return
+            else draw(e.x, e.y)
+        }
+        else {
+            move(e.x, e.y)
+        }
+    })
+
+    // mouse up can be triggered anywhere in the window
+    window.addEventListener('mouseup', (e) => endChanges(e.x, e.y))
+
+    // delete selected edge
+    window.addEventListener('keydown', ({ key }) => {
+        if (key == "Delete")
+            deleteEdge()
+        else if (key == "Enter")
+            container.click()
+    })
+
+    window.addEventListener('click', (e) => {
+        if (activeEdge) {
+            activeEdge.classList.remove("active")
+            activeEdge = null
+        }
+    })
+}
 
 function deleteEdge() {
     let endPts = activeEdge.id.split('-')
@@ -265,11 +283,11 @@ function finishEdge(el) {
         name2 = `${el.id}-${startingVertex}`
     if (document.getElementById(name1))
         edges.removeChild(edge)
-    else if(!isDirected && document.getElementById(name2))
+    else if (!isDirected && document.getElementById(name2))
         edges.removeChild(edge)
-    else if(name1 == name2)
+    else if (name1 == name2)
         edge.removeChild(edge)
-        //console.log("boo", name1, name2)
+    //console.log("boo", name1, name2)
     else {
         edge.id = name1
         edge.classList.add("fixed")
@@ -286,7 +304,7 @@ function finishEdge(el) {
             otherY: y2,
         })
 
-        if(!isDirected){
+        if (!isDirected) {
             adjacency[el.id].push({
                 v: startingVertex,
                 edge: name1,
@@ -302,11 +320,11 @@ function finishEdge(el) {
     console.log("righting")
 }
 
-function updateAdjacency(start, end, wt){
+function updateAdjacency(start, end, wt) {
 
     mat[start][end] = wt
 
-    if(!isDirected){
+    if (!isDirected) {
         mat[end][start] = wt
     }
 }

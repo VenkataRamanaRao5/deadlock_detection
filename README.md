@@ -16,3 +16,5 @@ This is a graph editor web application that lets you
 
 - right click-drag for drawing edges
 - left click-drag for moving around vertices
+
+- double click/double tap edges to delete them

@@ -43,32 +43,48 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-let visited = Array.from({length: v}, e => false)
-
-async function startMessage(init, start){
-    if(!start){
-        visited.fill(false)
-        start = init
+async function chandyMisraHaas(start) {
+    if(!start) retuurn
+    clearAll()
+    colorVertex(start, "blue")
+    let visited = Array.from({length: v}, e => false)
+    let init = start
+    let p = await broadcastMessage(init, start, visited)
+    if(!p) {
+        colorVertex(init, "red")
+        await delay(250)
+        window.alert("Deadlock detected")
     }
-    if(visited[start])  return
+    else window.alert("No deadlock detected")
+}
+
+
+async function broadcastMessage(init, start, visited){
+    if(visited[start])  return true
     else visited[start] = true
     await delay(500)
-    colorVertex(start, "green")
+    if(init != start) colorVertex(start, "green")
     await delay(500)
     let p = adjacency[start].map(element => {
         console.log(start, element)
         return sendMessage(init, start, element.v)
     });
     console.log(p)
-    Promise.all(p).then(data => {
-        console.log(data)
-        setTimeout(() => {
-            data.forEach(pid => {
-                colorEdge(start, pid, "brown")
-                startMessage(init, pid)
-            })
-        }, 1000)
+    let receivers = await Promise.all(p)
+    console.log(receivers)
+    if(receivers.includes(init)) {
+        return false
+    }
+    await delay(750)
+    let p2 = receivers.map(pid => {
+        return broadcastMessage(init, pid, visited)
     })
+
+    console.log(p2)
+    let result = await Promise.all(p2)
+    console.log(result)
+    return !result.includes(false)
+
 }
 
 async function sendMessage(init, sender, receiver){
@@ -85,8 +101,9 @@ async function sendMessage(init, sender, receiver){
 
     await delay(100)
     msg.style.left = '100%'
-    await delay(4000)
-    setTimeout(() => clearMessages(), 2000)
+    await delay(3500)
+    setTimeout(() => colorEdge(sender, receiver, "brown"), 100)
+    setTimeout(() => clearMessages(), 1760)
     return receiver
 
 }

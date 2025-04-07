@@ -54,8 +54,22 @@ function hide(div){
 
 function show(div){
     extract()
-    if(div == 'repr')
-        document.getElementById('matrix').innerHTML = document.getElementById("space").innerHTML
+    document.getElementById('matrix').innerHTML = document.getElementById("space").innerHTML
     document.getElementById(div).style.visibility = "visible"
     container.style.visibility = "hidden"
 }
+
+function clear() {
+    mat = Array(v).fill().map(() => Array(v).fill(0))
+    adjacency = []
+    edges.innerHTML = ""
+}
+
+document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState == 'hidden') { 
+        extract()
+        sessionStorage.setItem('matrix', document.getElementById('space').innerHTML)
+        sessionStorage.setItem('v', v)
+      }
+  });
+
