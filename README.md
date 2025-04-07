@@ -1,9 +1,10 @@
-# Graph Editor
-This is a graph editor web application that lets you 
-- create and move around vertices
-- draw weighted or unweighted edge between two edges
+# Deadlock Detection
+This is a deadlock detection web application using wait-for graph. This application lets you 
+- create and move around vertices denoting processes
+- draw directed edge between two edges denoting wait-for relation
 - extract the adjacency matrix representation from the graph
-- load a graph by providing the matrix representation
+- load a graph by providing the matrix representation.
+- detect deadlock by edge chasing starting from a source vertex
 
 ## Controls
 
