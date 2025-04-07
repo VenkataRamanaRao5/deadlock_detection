@@ -136,7 +136,7 @@ html,
 
 .message {
     top: 25px;
-    transition: left 4s ease;
+    transition: left 1s ease;
     position: absolute;
     color:antiquewhite;
     text-wrap: nowrap;

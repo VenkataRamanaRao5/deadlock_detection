@@ -43,12 +43,24 @@ function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+let finish = false, deadlock = false
+
 let visited = Array.from({length: v}, e => false)
+
+function finishAlgo(){
+    if(!finish) {
+        finish = true
+        if(deadlock) window.alert("deadlock detected")
+        else window.alert("No deadlock detected")
+    }
+}
 
 async function startMessage(init, start){
     if(!start){
         visited.fill(false)
         start = init
+        finish = false
+        deadlock = false
     }
     if(visited[start])  return
     else visited[start] = true
@@ -60,15 +72,22 @@ async function startMessage(init, start){
         return sendMessage(init, start, element.v)
     });
     console.log(p)
-    Promise.all(p).then(data => {
+    await Promise.all(p).then(async data => {
         console.log(data)
-        setTimeout(() => {
-            data.forEach(pid => {
-                colorEdge(start, pid, "brown")
-                startMessage(init, pid)
+        if(data.includes(-1)) 
+            deadlock = true
+        else {
+            await delay(1000)
+            Promise.all(data.map(pid => {
+                return startMessage(init, pid)
+            })).then(data => {
+                console.log(2, data, init, start, visited)
+                if(!visited.includes(false))
+                    finishAlgo()
             })
-        }, 1000)
+        }
     })
+    return 0
 }
 
 async function sendMessage(init, sender, receiver){
@@ -77,16 +96,18 @@ async function sendMessage(init, sender, receiver){
     msg.innerText = `(${init}, ${sender}, ${receiver})`
     msg.classList.add('message')
     msg.style.left = 0
-
+    
     const e = document.getElementById(`${sender}-${receiver}`)
     const f = e.style.transform.match('rotate\\(\(-?\)\([-0-9.]*deg\)\\)')
     msg.style.transform = `rotate(${f[1] ? '' : '-'}${f[2]})`
     e.appendChild(msg)
-
+    
     await delay(100)
     msg.style.left = '100%'
     await delay(4000)
     setTimeout(() => clearMessages(), 2000)
+    setTimeout(() => colorEdge(sender, receiver, "brown"), 1000)
+    if(init == receiver)    return -1
     return receiver
 
 }
